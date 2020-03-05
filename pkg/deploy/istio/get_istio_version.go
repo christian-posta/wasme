@@ -8,9 +8,9 @@ import (
 )
 
 const (
-	pilotDeploymentName   = "istio-pilot"
+	istiodDeploymentName  = "istiod"
 	defaultIstioNamespace = "istio-system"
-	pilotContainerName    = "discovery"
+	istiodContainerName   = "discovery"
 )
 
 type VersionInspector interface {
@@ -27,22 +27,22 @@ func (i *versionInspector) GetIstioVersion() (string, error) {
 	if istioNamespace == "" {
 		istioNamespace = defaultIstioNamespace
 	}
-	pilotDeployment, err := i.kube.AppsV1().Deployments(istioNamespace).Get(pilotDeploymentName, metav1.GetOptions{})
+	istiodDeployment, err := i.kube.AppsV1().Deployments(istioNamespace).Get(istiodDeploymentName, metav1.GetOptions{})
 	if err != nil {
 		return "", nil
 	}
-	var pilotImage string
-	for _, container := range pilotDeployment.Spec.Template.Spec.Containers {
-		if container.Name == pilotContainerName {
-			pilotImage = container.Image
+	var istiodImage string
+	for _, container := range istiodDeployment.Spec.Template.Spec.Containers {
+		if container.Name == istiodContainerName {
+			istiodImage = container.Image
 			break
 		}
 	}
-	if pilotImage == "" {
-		return "", errors.Errorf("did not find container named %s on pilot deployment", pilotContainerName)
+	if istiodImage == "" {
+		return "", errors.Errorf("did not find container named %s on istiod deployment", istiodContainerName)
 	}
 
-	_, tag, err := util.SplitImageRef(pilotImage)
+	_, tag, err := util.SplitImageRef(istiodImage)
 
 	return tag, err
 }
